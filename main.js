@@ -49,9 +49,10 @@
 
   /* ================= nav ================= */
   const nav = $('.nav'), toggle = $('.nav__toggle');
-  const closeMenu = () => { nav.classList.remove('is-open'); toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-label', 'Abrir menu'); };
+  const closeMenu = () => { nav.classList.remove('is-open'); document.body.style.overflow = ''; toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-label', 'Abrir menu'); };
   toggle.addEventListener('click', () => {
     const open = nav.classList.toggle('is-open');
+    document.body.style.overflow = open ? 'hidden' : '';
     toggle.setAttribute('aria-expanded', open);
     toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
   });
@@ -174,6 +175,8 @@
 
   /* ================= GSAP ================= */
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true }); // barra do navegador do celular não recalcula tudo
+  const small = matchMedia('(max-width: 860px)').matches;
   if (lenis) {
     lenis.on('scroll', e => { ScrollTrigger.update(); vel = clamp(e.velocity || 0, -60, 60); });
     gsap.ticker.add(t => lenis.raf(t * 1000));
@@ -191,24 +194,31 @@
     .to(c, { v: 100, duration: .7, ease: 'power2.inOut', onUpdate: () => { count.textContent = Math.round(c.v); } }, 0)
     .to('.loader__inner, .loader__count', { opacity: 0, y: -16, duration: .3, ease: 'power2.in' }, .7)
     .to('.loader__panel', { yPercent: -100, duration: .8, ease: 'expo.inOut' }, .8)
-    .from(photos, { z: -900, opacity: 0, duration: 1.3, ease: 'expo.out', stagger: .06 }, 1)
+    .from(photos, small ? { opacity: 0, duration: .8, stagger: .06 } : { z: -900, opacity: 0, duration: 1.3, ease: 'expo.out', stagger: .06 }, 1)
     .to('.hero__h1 .line > span', { y: 0, duration: 1, ease: 'expo.out', stagger: .07 }, 1.05)
     .to('[data-hero-in]', { opacity: 1, duration: .8, ease: 'power2.out', stagger: .08 }, 1.3);
 
-  /* ---- hero: mergulho em profundidade ---- */
+  /* ---- hero: mergulho em profundidade (desktop) / esmaecer simples (celular) ---- */
   const hero = $('[data-hero]');
-  const dive = gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: () => '+=' + innerHeight, scrub: true, pin: true, pinSpacing: false } });
   const ir = { immediateRender: false };
-  photos.forEach((p, i) => {
-    const d = +p.dataset.depth, r = rects[i];
-    const dx = (r.left + r.width / 2 - innerWidth / 2) * 1.4, dy = (r.top + r.height / 2 - innerHeight / 2) * 1.4;
-    dive.fromTo(p, { z: 0, x: 0, y: 0, opacity: 1 }, { ...ir, z: 700 + d * 500, x: dx, y: dy, ease: 'power1.in' }, 0);
-  });
-  dive
-    .fromTo('.hero__h1', { scale: 1, opacity: 1 }, { ...ir, scale: 1.35, opacity: 0, ease: 'power1.in' }, .1)
-    .fromTo('[data-hero-in]', { opacity: 1, y: 0 }, { ...ir, opacity: 0, y: 30, ease: 'none', duration: .3 }, 0)
-    .fromTo('.hero__hint', { opacity: 1 }, { ...ir, opacity: 0, ease: 'none', duration: .15 }, 0)
-    .fromTo('.hero__glow', { scale: 1, opacity: 1 }, { ...ir, scale: 1.8, opacity: 0, ease: 'none' }, 0);
+  if (small) {
+    gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } })
+      .fromTo('.hero__h1, .hero__foot', { opacity: 1, y: 0 }, { ...ir, opacity: 0, y: -60, ease: 'none' }, 0)
+      .fromTo(photos, { y: 0 }, { ...ir, y: -80, ease: 'none' }, 0);
+  } else {
+    const dive = gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: () => '+=' + innerHeight, scrub: true, pin: true, pinSpacing: false } });
+    const ir = { immediateRender: false };
+    photos.forEach((p, i) => {
+      const d = +p.dataset.depth, r = rects[i];
+      const dx = (r.left + r.width / 2 - innerWidth / 2) * 1.4, dy = (r.top + r.height / 2 - innerHeight / 2) * 1.4;
+      dive.fromTo(p, { z: 0, x: 0, y: 0, opacity: 1 }, { ...ir, z: 700 + d * 500, x: dx, y: dy, ease: 'power1.in' }, 0);
+    });
+    dive
+      .fromTo('.hero__h1', { scale: 1, opacity: 1 }, { ...ir, scale: 1.35, opacity: 0, ease: 'power1.in' }, .1)
+      .fromTo('[data-hero-in]', { opacity: 1, y: 0 }, { ...ir, opacity: 0, y: 30, ease: 'none', duration: .3 }, 0)
+      .fromTo('.hero__hint', { opacity: 1 }, { ...ir, opacity: 0, ease: 'none', duration: .15 }, 0)
+      .fromTo('.hero__glow', { scale: 1, opacity: 1 }, { ...ir, scale: 1.8, opacity: 0, ease: 'none' }, 0);
+  }
 
   // inclinação pelo mouse
   if (fine) {

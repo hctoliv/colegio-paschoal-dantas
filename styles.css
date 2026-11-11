@@ -412,8 +412,8 @@ figure { margin: 0; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 0; border-color: var(--navy); }
 .field.is-bad input { border-color: #c4413a; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.chips label { cursor: pointer; }
-.chips input { position: absolute; opacity: 0; pointer-events: none; }
+.chips label { cursor: pointer; position: relative; }
+.chips input { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: 0; padding: 0; opacity: 0; pointer-events: none; }
 .chips span { display: inline-block; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; font: 600 13.5px/1 var(--sans); transition: all .3s var(--ease); }
 .chips input:checked + span { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
 .chips input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -502,3 +502,12 @@ figure { margin: 0; }
 .foot__logo img { width: 230px; height: auto; }
 
 .row { will-change: auto; }
+
+/* ============ celular: leve e estável ============ */
+@media (max-width: 860px) {
+  .hero__stage { perspective: none; }
+  .hero__ph { box-shadow: none; }
+  .value { position: relative; top: auto; margin-bottom: 14px; box-shadow: none; }
+  .stage:hover .stage__ph img, .tcard:hover img { transform: none; }
+  .nav.is-solid { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10,20,64,.97); }
+}
