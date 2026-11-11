@@ -198,6 +198,8 @@
     .to('.hero__h1 .line > span', { y: 0, duration: 1, ease: 'expo.out', stagger: .07 }, 1.05)
     .to('[data-hero-in]', { opacity: 1, duration: .8, ease: 'power2.out', stagger: .08 }, 1.3);
 
+  setTimeout(() => { if (intro.progress() < 1) intro.progress(1); }, 4000); // nunca deixa a página presa na abertura
+
   /* ---- hero: mergulho em profundidade (desktop) / esmaecer simples (celular) ---- */
   const hero = $('[data-hero]');
   const ir = { immediateRender: false };
